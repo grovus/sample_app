@@ -35,6 +35,7 @@ describe "Authentication" do
       	before { click_link "Sign out" }
 
         it { should_not have_title(user.name) }
+        it { should_not have_link('Users',       href: users_path) }
         it { should_not have_link('Profile',     href: user_path(user)) }
         it { should_not have_link('Settings',    href: edit_user_path(user)) }
         it { should_not have_link('Sign out',    href: signout_path) }
@@ -60,7 +61,21 @@ describe "Authentication" do
           it "should render the desired protected page" do
             expect(page).to have_title('Edit user')
           end
-        end
+
+        describe "when signing in again" do
+            before do
+              delete signout_path
+              visit signin_path
+              fill_in "Email",    with: user.email
+              fill_in "Password", with: user.password
+              click_button "Sign in"
+            end
+
+            it "should render the default (profile) page" do
+              expect(page).to have_title(user.name)
+            end
+          end
+        end  
       end
 
       describe "in the Users controller" do
